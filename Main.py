@@ -1,6 +1,9 @@
+import openpyxl
 import openrouteservice as ors
 import folium
 import pandas as pd
+from openpyxl import Workbook
+
 
 ## reading Xlss data
 excel_file = 'Datenbank.xlsx'
@@ -32,6 +35,30 @@ with pd.ExcelFile(excel_file) as xls:
 
 #print(dHaltestellenSheet.head(5))
 #print(df1["HaltestellenSheet"].at[1,"Haltestellen"])
+
+m = folium.Map(location=(52.1272031, 9.9807198), zoom_start=25, tiles="OpenStreetMap")
+
+## Reading the Value of Cell to get the Cordenation
+workbook = openpyxl.load_workbook('Datenbank.xlsx')
+sheet = workbook['HaltestellenSheet']
+
+#wb.save(filename='testExcel.xlsx')
+
+
+# Correcting the loop to print values from the sheet
+for num in range(1, 110):
+    cell_a = sheet[f'A{num}'].value
+    cell_b = sheet[f'B{num}'].value
+    cell_c = sheet[f'C{num}'].value
+    cell_d = sheet[f'D{num}'].value
+    if cell_a == 1:
+        folium.Marker(
+        location=[cell_c, cell_d],
+        tooltip="Click me!",
+        popup="Timberline Lodge",
+        icon=folium.Icon(color="green"),
+    ).add_to(m)
+    print(cell_a, cell_b, cell_c, cell_d)
 
 ###############################################
 ## Writing to Excel
@@ -69,8 +96,8 @@ for x in thislist:
 """
 
 ##### Folium
-m = folium.Map(location=(52.1272031, 9.9807198), zoom_start=25, tiles="OpenStreetMap")
-
+#m = folium.Map(location=(52.1272031, 9.9807198), zoom_start=25, tiles="OpenStreetMap")
+"""""
 folium.Marker(
     location=[52.1272031, 9.9807198],
     tooltip="Click me!",
@@ -84,7 +111,7 @@ folium.Marker(
     popup="Timberline Lodge",
     icon=folium.Icon(color="red"),
 ).add_to(m)
-
+"""""
 m.save("D:\Projects\OpenRouteServiceTest\OpenRouteServiceProject\index.html")
 
 m
