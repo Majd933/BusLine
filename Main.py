@@ -4,9 +4,21 @@ import folium
 import pandas as pd
 from openpyxl import Workbook
 
+import ExcelClass as exl
+
+
+"""""
+Zweistufiges Problem:
+1.	Strßen:Generierung einer Menge von potentiellen Routen 
+2.	Bullinen: Auswahl einer Teilmenge von Routen, die tatsächlich umgesetzt werden sollten (Routenplan)
+"""""
+
+#busstation = exl.getBustations()
 
 ## reading Xlss data
 excel_file = 'Datenbank.xlsx'
+
+
 
 
 
@@ -31,7 +43,7 @@ dfile = pd.read_excel(excel_file)
 file = pd.ExcelFile(excel_file)
 with pd.ExcelFile(excel_file) as xls:
     dHaltestellenSheet = pd.read_excel(xls, "HaltestellenSheet")
-    dTestSheet = pd.read_excel(xls, "TestSheet")
+   # dTestSheet = pd.read_excel(xls, "TestSheet")
 
 #print(dHaltestellenSheet.head(5))
 #print(df1["HaltestellenSheet"].at[1,"Haltestellen"])
@@ -46,19 +58,32 @@ sheet = workbook['HaltestellenSheet']
 
 
 # Correcting the loop to print values from the sheet
-for num in range(1, 110):
+locations = []
+for num in range(2, 151):
     cell_a = sheet[f'A{num}'].value
     cell_b = sheet[f'B{num}'].value
     cell_c = sheet[f'C{num}'].value
     cell_d = sheet[f'D{num}'].value
-    if cell_a == 1:
-        folium.Marker(
-        location=[cell_c, cell_d],
-        tooltip="Click me!",
-        popup="Timberline Lodge",
-        icon=folium.Icon(color="green"),
-    ).add_to(m)
-    print(cell_a, cell_b, cell_c, cell_d)
+
+    if isinstance(cell_c, str):
+        cell_c = cell_c.replace(',', '.')
+    if isinstance(cell_d, str):
+        cell_d = cell_d.replace(',', '.')
+    location = [float(cell_c), float(cell_d)]
+    locations.append(location)
+
+   #### folium.Marker(
+     #   location=[float(cell_c), float(cell_d)],
+    #    tooltip="Click me!",
+    #    popup="Timberline Lodge",
+    #    icon=folium.Icon(color="green"),
+   ## ).add_to(m)
+
+# Add a line between the nodes
+#folium.PolyLine(locations, color="red").add_to(m)
+#print(cell_a, cell_b, cell_c, cell_d)
+
+#m.save(r"D:\Projects\OpenRouteServiceTest\OpenRouteServiceProject\index.html")
 
 ###############################################
 ## Writing to Excel
@@ -72,60 +97,5 @@ dHaltestellenSheet = dHaltestellenSheet.head(5)
 dHaltestellenSheet.to_excel('TestResult.xlsx',sheet_name='del',index=False)
 ##log history
 
-coords = ((9.9807198, 52.1272031), (9.9728696, 52.1340178))
-
-latitude = 52.1272031
-longitude = 9.9807198
-# key can be omitted for local host
-client = ors.Client(key='5b3ce3597851110001cf6248d51314cb052740899c08ab656ca927fe')
-routes = client.directions(coords)
 
 
-#print(df.at[2,'Haltestellen'])
-##print(df[['Haltestellen', 'longitude']])
-
-## Universtit :  52.1340178, 9.9728696
-## Hansering : 52.1272031,9.9807198
-
-
-## for loop
-"""""
-thislist = ["apple", "banana", "cherry"]
-for x in thislist:
-  print()
-"""
-
-##### Folium
-#m = folium.Map(location=(52.1272031, 9.9807198), zoom_start=25, tiles="OpenStreetMap")
-"""""
-folium.Marker(
-    location=[52.1272031, 9.9807198],
-    tooltip="Click me!",
-    popup="Timberline Lodge",
-    icon=folium.Icon(color="green"),
-).add_to(m)
-
-folium.Marker(
-    location=[52.1340178, 9.9728696],
-    tooltip="Click me!",
-    popup="Timberline Lodge",
-    icon=folium.Icon(color="red"),
-).add_to(m)
-"""""
-m.save("D:\Projects\OpenRouteServiceTest\OpenRouteServiceProject\index.html")
-
-m
-"""
-# Only works if you didn't change the ORS endpoints manually
-routes = client.directions(coords)
-
-# If you did change the ORS endpoints for some reason
-# you'll have to pass url and required parameters explicitly:
-routes = client.request(
-  url='/new_url',
-  post_json={
-      'coordinates': coords,
-      'profile': 'driving-car',
-      'format': 'geojson'
-  })
-"""
